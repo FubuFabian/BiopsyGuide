@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "mainwindow.h"
+#include "VolumeReconstruction.h"
 
 #include <vtkSmartPointer.h>
 #include <vtkImageData.h>
@@ -52,6 +53,9 @@ private:
 
 	/** the main window to call it */
     MainWindow* mainWindow;
+    
+    /** The reconstructor method */
+    VolumeReconstruction * reconstructor;
 
     /** The data of each image */
 	std::vector< vtkSmartPointer<vtkImageData> > volumeImageStack;
@@ -112,7 +116,7 @@ private:
      * \param[in] if bool is true it computes it with the imagecoords,
      * else it uses the image bounds
      */
-	void calcVolumeSize(bool);
+	void calcVolumeSize();
 
     /**
      * \brief Set the volume opacity
@@ -127,12 +131,12 @@ private:
     /**
      * \brief Set the display properties of the volume and the rendering method
      */
-	void setDisplayProperties(vtkSmartPointer<vtkImageData>);
+    void setDisplayProperties(vtkSmartPointer<vtkImageData>);
 
     /**
      * \brief Display the volume in the 3D scene
      */
-	void displayVolume();
+    void displayVolume();
 
 private slots:
 
@@ -145,11 +149,17 @@ private slots:
      * \brief Calls VolumeReconstruction.h to generate the new volume data
      */
     void generate();
+    
+    /**
+     * \brief Calls VolumeReconstruction.h to fill the empty voxels on the volume
+     */
+    void fill();
 
     /**
      * \brief Set the resolution of the volume
      */
     void setResolution(int idx);
+    
 
 };
 

@@ -18,8 +18,8 @@ ChangeVolumePropertiesWidget::ChangeVolumePropertiesWidget(QWidget *parent) :
 	ui->upperThresholdSlider->setValue(255);
 
 	ui->opacitySlider->setTickInterval(1);
-	ui->opacitySlider->setRange(0,100);
-	ui->opacitySlider->setValue(100);
+	ui->opacitySlider->setRange(0,100.00);
+	ui->opacitySlider->setValue(100.00);
 
 	ui->lowerThresholdDisplay->setText("0");
 	ui->upperThresholdDisplay->setText("255");
@@ -53,9 +53,10 @@ void ChangeVolumePropertiesWidget::changeLowerThreshold(int tickValue)
 	middlePoint = lowerThreshVal + floor((upperThreshVal - lowerThreshVal)*0.5);
 	
 	volumeScalarOpacity->RemoveAllPoints();
-	volumeScalarOpacity->AddPoint(lowerThreshVal,0.0);
-	volumeScalarOpacity->AddPoint(middlePoint,opacityVal);
-	volumeScalarOpacity->AddPoint(upperThreshVal,0.0);
+	volumeScalarOpacity->AddPoint(lowerThreshVal-1,0);
+	volumeScalarOpacity->AddPoint(lowerThreshVal,opacityVal);
+        volumeScalarOpacity->AddPoint(upperThreshVal+1,0);
+	volumeScalarOpacity->AddPoint(upperThreshVal,opacityVal);
     volumeScalarOpacity->Update();
 	
 	if(QVTKImage)
@@ -79,11 +80,12 @@ void ChangeVolumePropertiesWidget::changeUpperThreshold(int tickValue)
 
 	middlePoint = lowerThreshVal + floor((upperThreshVal - lowerThreshVal)*0.5);
  
-    volumeScalarOpacity->RemoveAllPoints();
-	volumeScalarOpacity->AddPoint(lowerThreshVal,0.0);
-	volumeScalarOpacity->AddPoint(middlePoint,opacityVal);
-	volumeScalarOpacity->AddPoint(upperThreshVal,0.0);
-    volumeScalarOpacity->Update();
+        volumeScalarOpacity->RemoveAllPoints();
+        volumeScalarOpacity->AddPoint(lowerThreshVal-1,0);
+	volumeScalarOpacity->AddPoint(lowerThreshVal,opacityVal);
+        volumeScalarOpacity->AddPoint(upperThreshVal+1,0);
+	volumeScalarOpacity->AddPoint(upperThreshVal,opacityVal);
+        volumeScalarOpacity->Update();
 
 	if(QVTKImage)
 		qvtkImageWidget->setVolumeOpacity(volumeScalarOpacity);
@@ -98,9 +100,10 @@ void ChangeVolumePropertiesWidget::changeOpacity(int tickValue)
 	opacityVal = tickValue*0.01;
 
     volumeScalarOpacity->RemoveAllPoints();
-	volumeScalarOpacity->AddPoint(lowerThreshVal,0.0);
-	volumeScalarOpacity->AddPoint(middlePoint,opacityVal);
-	volumeScalarOpacity->AddPoint(upperThreshVal,0.0);
+	volumeScalarOpacity->AddPoint(lowerThreshVal-1,0);
+	volumeScalarOpacity->AddPoint(lowerThreshVal,opacityVal);
+        volumeScalarOpacity->AddPoint(upperThreshVal+1,0);
+	volumeScalarOpacity->AddPoint(upperThreshVal,opacityVal);
     volumeScalarOpacity->Update();
 
 	if(QVTKImage)

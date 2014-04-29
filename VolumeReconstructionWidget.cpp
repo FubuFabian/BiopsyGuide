@@ -1,6 +1,7 @@
 #include "VolumeReconstructionWidget.h"
 #include "ui_VolumeReconstructionWidget.h"
-#include "VolumeReconstruction.h"
+#include "VolumeReconstructionVBM.h"
+#include "VolumeReconstructionPBM.h"
 #include "vtkMetaImageWriter.h"
 
 #include <QString>
@@ -15,6 +16,7 @@ VolumeReconstructionWidget::VolumeReconstructionWidget(QWidget *parent) :
         ui->resolution->show();
         ui->resolution->setTickInterval(1);
         ui->resolution->setRange(1, 10);
+        ui->kernelSize->setText("3");
 
 }
 
@@ -34,30 +36,55 @@ void VolumeReconstructionWidget::generate()
 
 	volumeData = vtkSmartPointer<vtkImageData>::New();
 
-	if(ui->pixelMethod->isChecked()){
+	calcImageBounds();
+	calcVolumeSize();
+        
+        if(ui->pixelMethod->isChecked()){
 		
 		calcImageCoords();
-		calcVolumeSize(true);
-
-	}else if(ui->voxelMethod->isChecked()){
-		
-		calcImageBounds();
-		calcVolumeSize(false);
-
-		VolumeReconstruction * reconstructor = VolumeReconstruction::New();
-
-		reconstructor->setImageBoundsStack(imageBoundsXStack, imageBoundsYStack, imageBoundsZStack);
+                
+                reconstructor = VolumeReconstructionPBM::New();
+                               
 		reconstructor->setScale(scale);
 		reconstructor->setTransformStack(transformStack);
 		reconstructor->setVolumeImageStack(volumeImageStack);
 		reconstructor->setVolumeOrigin(volumeOrigin);
 		reconstructor->setVolumeSize(volumeSize);
-        reconstructor->setResolution(res);
+                reconstructor->setResolution(res);
+                
+                static_cast<VolumeReconstructionPBM*>(reconstructor)->setPixelCoordsStack(imageCoordsXStack, imageCoordsYStack, imageCoordsZStack);
+                
+                volumeData = static_cast<VolumeReconstructionPBM*>(reconstructor)->generateVolume();
+
+	}else if(ui->voxelMethod->isChecked()){
 		
-		volumeData = reconstructor->generateVolume();
+		reconstructor = VolumeReconstructionVBM::New();
+
+		reconstructor->setScale(scale);
+		reconstructor->setTransformStack(transformStack);
+		reconstructor->setVolumeImageStack(volumeImageStack);
+		reconstructor->setVolumeOrigin(volumeOrigin);
+		reconstructor->setVolumeSize(volumeSize);
+                reconstructor->setResolution(res);
+                
+                static_cast<VolumeReconstructionVBM*>(reconstructor)->setImageBoundsStack(imageBoundsXStack, imageBoundsYStack, imageBoundsZStack);
+		
+		volumeData = static_cast<VolumeReconstructionVBM*>(reconstructor)->generateVolume();
 
 	}
 
+    mainWindow->getDisplayWidget()->setAndDisplayVolume(volumeData);
+    
+    ui->fillVolume->setEnabled(true);
+    ui->label_4->setEnabled(true);
+    ui->kernelSize->setEnabled(true);
+    ui->save->setEnabled(true);
+    
+}
+
+void VolumeReconstructionWidget::fill()
+{
+    volumeData = reconstructor->fillVolume(ui->kernelSize->text().toInt());
     mainWindow->getDisplayWidget()->setAndDisplayVolume(volumeData);
 }
 
@@ -91,9 +118,9 @@ void VolumeReconstructionWidget::calcImageCoords()
 		vnl_matrix<double> imageCoordsZ;
 
 		int * imageSize = volumeImageStack.at(i)->GetDimensions();
-		imageCoordsX.set_size(imageSize[1],imageSize[0]);
-		imageCoordsY.set_size(imageSize[1],imageSize[0]);
-		imageCoordsZ.set_size(imageSize[1],imageSize[0]);
+		imageCoordsX.set_size(imageSize[0],imageSize[1]);
+		imageCoordsY.set_size(imageSize[0],imageSize[1]);
+		imageCoordsZ.set_size(imageSize[0],imageSize[1]);
  
 		for(int x=0; x<imageSize[0] ; x++){
 			for(int y=0; y<imageSize[1] ; y++){
@@ -103,9 +130,9 @@ void VolumeReconstructionWidget::calcImageCoords()
 
 				vnl_vector<double> transformedPoint = transformStack.at(i)*point;
 
-				imageCoordsX.put(y,x,transformedPoint[0]);
-				imageCoordsY.put(y,x,transformedPoint[1]);
-				imageCoordsZ.put(y,x,transformedPoint[2]);
+				imageCoordsX.put(x,y,transformedPoint[0]);
+				imageCoordsY.put(x,y,transformedPoint[1]);
+				imageCoordsZ.put(x,y,transformedPoint[2]);
 
 			}
 		}
@@ -179,7 +206,7 @@ void VolumeReconstructionWidget::calcImageBounds()
 }
 
 
-void VolumeReconstructionWidget::calcVolumeSize(bool usePixelMethod)
+void VolumeReconstructionWidget::calcVolumeSize()
 {
 	vnl_vector<double> xMin;
 	vnl_vector<double> xMax;
@@ -197,35 +224,19 @@ void VolumeReconstructionWidget::calcVolumeSize(bool usePixelMethod)
 
 	std::cout<<std::endl;
 
-	if(usePixelMethod){
 
-		for(int i=0; i<volumeImageStack.size(); i++){
+
+	for(int i=0; i<volumeImageStack.size(); i++){
 		
-			xMin.put(i,imageCoordsXStack.at(i).min_value());
-			xMax.put(i,imageCoordsXStack.at(i).max_value());
+		xMin.put(i,imageBoundsXStack.at(i).min_value());
+		xMax.put(i,imageBoundsXStack.at(i).max_value());
 
-			yMin.put(i,imageCoordsYStack.at(i).min_value());
-			yMax.put(i,imageCoordsYStack.at(i).max_value());
+		yMin.put(i,imageBoundsYStack.at(i).min_value());
+		yMax.put(i,imageBoundsYStack.at(i).max_value());
 
-			zMin.put(i,imageCoordsZStack.at(i).min_value());
-			zMax.put(i,imageCoordsZStack.at(i).max_value());
-		
-		}
-	}else{
-
-		for(int i=0; i<volumeImageStack.size(); i++){
-		
-			xMin.put(i,imageBoundsXStack.at(i).min_value());
-			xMax.put(i,imageBoundsXStack.at(i).max_value());
-
-			yMin.put(i,imageBoundsYStack.at(i).min_value());
-			yMax.put(i,imageBoundsYStack.at(i).max_value());
-
-			zMin.put(i,imageBoundsZStack.at(i).min_value());
-			zMax.put(i,imageBoundsZStack.at(i).max_value());
-		
-		}
-	}
+		zMin.put(i,imageBoundsZStack.at(i).min_value());
+		zMax.put(i,imageBoundsZStack.at(i).max_value());
+        }
 
 	volumeOrigin.set_size(3);
 	volumeOrigin[0] = xMin.min_value();

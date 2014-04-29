@@ -58,7 +58,7 @@ INCLUDE_DIRECTORIES(
 # Set your files and resources here
 SET(AppSrcs main.cpp mainwindow.cpp QVTKImageWidget.cpp QVTKImageWidgetCommand.cpp 
     ProbeCalibrationWidget.cpp Calibration.cpp VolumeReconstructionWidget.cpp 
-    VolumeReconstruction.cpp CropImagesWidget.cpp Scene3D.cpp Scene3DWidget.cpp
+    VolumeReconstructionVBM.cpp CropImagesWidget.cpp Scene3D.cpp Scene3DWidget.cpp
     PolarisTracker.cpp igstkNeedleObject.cpp igstkNeedleObjectRepresentation.cpp
     igstkUSProbeObject.cpp igstkUSProbeObjectRepresentation.cpp
     igstkPolarisPointerObject.cpp igstkPolarisPointerObjectRepresentation.cpp
@@ -70,11 +70,11 @@ SET(AppSrcs main.cpp mainwindow.cpp QVTKImageWidget.cpp QVTKImageWidgetCommand.c
     PivotCalibration.cpp PolarisConfigurationWidget.cpp SegmentationTrainingWidget.cpp
     SegmentationIntensityAndTextureImages.cpp ImageSegmentation.cpp
     ImageSegmentationWidget.cpp VolumeSegmentation.cpp
-    VolumeSegmentationWidget.cpp)
+    VolumeSegmentationWidget.cpp VolumeReconstructionPBM.cpp VolumeReconstruction.cpp)
     
 SET(AppHeaders mainwindow.h QVTKImageWidget.h QVTKImageWidgetCommand.h 
     ProbeCalibrationWidget.h Calibration.h VolumeReconstructionWidget.h
-    VolumeReconstruction.h CropImagesWidget.h Scene3D.h Scene3DWidget.h
+    VolumeReconstructionVBM.h CropImagesWidget.h Scene3D.h Scene3DWidget.h
     PolarisTracker.h igstkNeedleObject.h igstkNeedleObjectRepresentation.h
     igstkUSProbeObject.h igstkUSProbeObjectRepresentation.h
     igstkPolarisPointerObject.h igstkPolarisPointerObjectRepresentation.h
@@ -88,7 +88,8 @@ SET(AppHeaders mainwindow.h QVTKImageWidget.h QVTKImageWidgetCommand.h
     itkScalarImageToRunLengthMatrixFilter.h itkHistogramToRunLengthFeaturesFilter.h 
     itkHistogramEqualizationFilter.h SegmentationIntensityAndTextureImages.h
     itkImageToVTKImageFilter.h itkVTKImageToImageFilter.h ImageSegmentation.h
-    ImageSegmentationWidget.h VolumeSegmentation.h VolumeSegmentationWidget.h)
+    ImageSegmentationWidget.h VolumeSegmentation.h VolumeSegmentationWidget.h
+    VolumeReconstructionPBM.h VolumeReconstruction.h)
     
 SET(AppUI mainwindow.ui ProbeCalibrationWidget.ui VolumeReconstructionWidget.ui 
     CropImagesWidget.ui Scene3DWidget.ui CheckCalibrationErrorWidget.ui

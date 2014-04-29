@@ -337,9 +337,8 @@ void QVTKImageWidget::setAndDisplayVolume(QString volumeFilename)
                 vtkSmartPointer<vtkVolumeRayCastCompositeFunction>::New();
 
     volumeScalarOpacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
-    volumeScalarOpacity->AddPoint(0,0.00);
-    volumeScalarOpacity->AddPoint(127,1.00);
-    volumeScalarOpacity->AddPoint(255,0.00);
+    volumeScalarOpacity->AddPoint(0,1.00);
+    volumeScalarOpacity->AddPoint(255,1.00);
     volumeScalarOpacity->Update();
     volumeProperty->SetScalarOpacity(volumeScalarOpacity);
 
@@ -385,9 +384,8 @@ void QVTKImageWidget::setAndDisplayVolume(vtkSmartPointer<vtkImageData> volumeDa
                 vtkSmartPointer<vtkVolumeRayCastCompositeFunction>::New();
 
     volumeScalarOpacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
-    volumeScalarOpacity->AddPoint(0,0.00);
-    volumeScalarOpacity->AddPoint(127,1.00);
-    volumeScalarOpacity->AddPoint(255,0.00);
+    volumeScalarOpacity->AddPoint(0,1.00);
+    volumeScalarOpacity->AddPoint(255,1.00);
     volumeScalarOpacity->Update();
     volumeProperty->SetScalarOpacity(volumeScalarOpacity);
 
